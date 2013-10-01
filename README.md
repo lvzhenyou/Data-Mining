@@ -46,11 +46,6 @@ In ms_prefix_scan.py, set parameter datafileName, parafileName and datalist, the
 		For each new generated sequence, add into a *queue* (stored as a dictionary with {length:[prefix]}), then BFS all the sequences until the queue is empty.
 		getKey(prefix): get the key to the previous projected database. For example, sequence <{1,2,3}{4,5}>, the key is '<{1,2,3}{4}>'
 		sequences(prefix, t, min0, totalLen, cp, counts): generate all valid sequences from a projected database.
-		Three situations:
-		1) ({prefix, prefix}): if the current item equals to p, and they are both in t[i][0]
-		2) ({prefix, x}): if current item not equals to p and they are both in t[i][0]
-		3) ({prefix}{x}): x in t[i][0] but !=p and e[0] is not 0 or p, or x not in t[i][0]
-		in situation 3, deal with sequence as [0,20][10,60] (p=10) separately.
 		check(p, add, table, situation): check after adding a item to the sequence, according to three situations.
 
 #### 5. ms_prefix_scan.py
