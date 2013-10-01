@@ -9,16 +9,12 @@ def check(p, add, table, situation):   ## check after adding a new item to the s
     for i in range(0, len(table)):
         F = 0
         for e in table[i]:
-            if situation==1:    ## situation 1: if add == e[0]; <{prefix, prefix}>
-                if e[0] == add:
-                    count += 1
-                break
-            if situation==2:    ## situation 2: if prefix == e[0] or e[0]==0; <{prefix, add}> 
+            if situation==1:    ## situation 1: if prefix == e[0] or e[0]==0; <{prefix, add}> 
                 if (p==e[0] or e[0]==0) and len(e) > 1 and e[1] == add:
                     count += 1
                     break
-            if situation==3:    ## situation 3: if predix != e[0] and e[0]!=0; <{prefix},{add}>
-                if e==table[i][0] and p!=e[0] and e[0]!=0 and add in e:
+            if situation==2:    ## situation 2: if predix != e[0] and e[0]!=0; <{prefix},{add}>
+                if e==table[i][0] and e[0]!=0 and add in e:
                     count += 1
                     F = 1
                 if F!=1 and e!=table[i][0] and add in e:
@@ -39,54 +35,31 @@ def sequence(prefix, t, min0, totalLen, cp, counts):
             for x in e:         ## for each item in the sequence
                 if x > 0:
                     s = 0
-                    if x==p and e==t[i][0] and x==e[0]:                       ## situation 1 ({prefix, prefix}): if the current item equals to p, and they are both in t[i][0]
-                        count = check(p, x, t, 1)
-                        s = 1
-                    elif x!=p and e==t[i][0] and (p==e[0] or e[0]==0):        ## situation 2 ({prefix, x}): if current item not equals to p and they are both in t[i][0]
+                    if e==t[i][0] and e[0]==0:        ## situation 1 ({prefix, x})
                         if str(x)+'_' not in checkset.keys():
-                            count = check(p, x, t, 2)
+                            count = check(p, x, t, 1)
                             checkset[str(x)+'_'] = count
                         else:
                             count = checkset[str(x)+'_']
+                        s = 1
+                    elif ((e==t[i][0] and e[0]!=0) or (e!=t[i][0])): ## situation 2 ({prefix}{x}): x in t[i][0] but !=p and e[0] is not 0 or p, or x not in t[i][0]
+                        if str(x) not in checkset.keys():
+                            count = check(p, x, t, 2)
+                            checkset[str(x)] = count
+                        else:
+                            count = checkset[str(x)]
                         s = 2
-                    elif ((e==t[i][0] and p!=e[0] and e[0]!=0) or (e!=t[i][0])): ## situation 3 ({prefix}{x}): x in t[i][0] but !=p and e[0] is not 0 or p, or x not in t[i][0]
-                        if e[0]!=p:   
-                            if str(x) not in checkset.keys():
-                                count = check(p, x, t, 3)
-                                checkset[str(x)] = count
-                            else:
-                                count = checkset[str(x)]
-                            s = 3
-                        else:  
-                            count1 = check(p, x, t, 3)
-                            count2 = check(p, x, t, 2)
-                            s = 4
                     
-                    if s!=4 and count/totalLen >= min0[cp]:    ## check if minsup(x) >= minsup(p)
+                    if count/totalLen >= min0[cp]:    ## check if minsup(x) >= minsup(p)
                         np = copy.deepcopy(prefix)
-                        if s==1 or s==2:
+                        if s==1:
                             np[l1-1].append(x)
-                        if s==3:
+                        if s==2:
                             np.append([x])
                         if np not in res:
                             res.append(np)
                             if str(np) not in counts.keys():
                                 counts[str(np)] = count
-                    if s==4:                                    ## situation such as for p=10, [0,20][10,60], when x = 10
-                        if count1/totalLen >= min0[cp]:
-                            np = copy.deepcopy(prefix)
-                            np.append([x])
-                            if np not in res:
-                                res.append(np)
-                                if str(np) not in counts.keys():
-                                    counts[str(np)] = count1
-                        if count2/totalLen >= min0[cp]:
-                            np = copy.deepcopy(prefix)
-                            np[l1-1].append(x)
-                            if np not in res:
-                                res.append(np)
-                                if str(np) not in counts.keys():
-                                    counts[str(np)] = count2
     return res
 
 def getKey(prefix):
@@ -151,13 +124,19 @@ def prefix_scan(prefix, length, table, min0, totalLen, cp, counts, SDC, min1):  
      
     for i in result.keys():     ## remove sequences which do not contain cp
         for e in result[i]:
+            indexE = result[i].index(e)
             F = 0
             for x in e:
                 if cp in x:
                     F = 1
                     break
-        if F==0:
-            result[i].remove(e)
-    result = {x:result[x] for x in result.keys() if result[x]}
+            if F==0:
+                result[i][indexE] = []
+    for i in result.keys():
+        for e in result[i]:
+            indexE = result[i].index(e)
+            result[i][indexE] = [x for x in e if x]
+    for i in result.keys():
+        result[i] = [x for x in result[i] if x]
     return result
 

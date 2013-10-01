@@ -4,7 +4,7 @@ from readfile import *
 from find_length_1 import *
 from prefix_scan import *
 
-def getList(S, sorted_length, min_sup, length):
+def getList(S, sorted_length, min_sup, length, p):
     l = []
     count = 0
     for x in sorted_length:
@@ -14,7 +14,7 @@ def getList(S, sorted_length, min_sup, length):
                 if x in e:
                     count += 1
                     break
-        if count/length >= min_sup[x]:
+        if count/length >= min_sup[p]:
             l.append(x)
     return l
 
@@ -22,8 +22,8 @@ debug = 0
 output = 1
 
 if debug == 0:
-    datafileName = "data.txt"
-    parafileName = "para.txt"
+    datafileName = "data2.txt"
+    parafileName = "para2.txt"
 
     datalist = [x for x in range(1,50)]     ## data range: 1-49
     #datalist = [x*10 for x in range(1,10)]   ## data range: 10-90
@@ -42,6 +42,7 @@ if debug == 0:
     length1 = { key: value for key, value in min1.items() if value >= min0[key] }   ## (frequent items) length1 is a dictionary 
 
     frequentItemsMinsup = {key:min0[key] for key in length1.keys()}
+    sorted_length0 = sorted(min0, key=min0.get)
     sorted_length1 = sorted(frequentItemsMinsup, key=frequentItemsMinsup.get)	    ## sort the dict according to the value and return a list of keys
 
     res = {x:{} for x in sorted_length1}                            ## result format: {prefix: {length: [lists]}}
@@ -52,11 +53,8 @@ if debug == 0:
     for p in sorted_length1:
         S = renew_table_Sk(table0, p, min1, SDC)    ## return sequences that contains p, also remove items that does not satisfy the SDC restriction
 
-        #sorted_list = [x for x in sorted_length1 if x >= p]     ## find items that after p in the sorted_length1
-        sorted_list = sorted_length1[indexP:]
-        L = getList(S, datalist, min0, len(table0))          ## get a list of prefix
-
-        #print("p={}, L={}".format(p,L))
+        nlist = [x for x in sorted_length0 if x >= p]
+        L = getList(S, nlist, min0, len(table0), p)          ## get a list of prefix
 
         ##-----for S, find all frequent item set------
         for x in L:
@@ -71,19 +69,19 @@ if debug == 0:
         indexP += 1
 
     result = {x:[] for x in range(1,10)}
-    if output == 1:
-        for i in res.keys():            ## contain x
-            for j in res[i].keys():     ## length j
-                for e in res[i][j]:
-                    if e not in result[j]:
-                        result[j].append(e)
+    for i in res.keys():            ## contain x
+        for j in res[i].keys():     ## length j
+            for e in res[i][j]:
+                if e not in result[j]:
+                    result[j].append(e)
 
-    for i in result.keys():
-        if len(result[i]) > 0:
-            print("Sequences of length {}, {} in total".format(i, len(result[i])))
-            for e in result[i]:
-                print("{}:{}".format(e, counts[str(e)]))
-            print("\n")
+    if output == 1:
+        for i in result.keys():
+            if len(result[i]) > 0:
+                print("Sequences of length {}, {} in total".format(i, len(result[i])))
+                for e in result[i]:
+                    print("{}:{}".format(e, counts[str(e)]))
+                print("\n")
 
 ##----------------------------------------------------
 
