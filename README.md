@@ -52,3 +52,8 @@ In ms_prefix_scan.py, set parameter datafileName, parafileName and datalist, the
 		getList(S, sorted_length, min_sup, length): get the list of prefix for one selected item.
 		The main process is in this file, start from line 25 to the end.
 
+
+3. Naive Bayes Text Classifier
+----------------------------------- 
+### How to use: 
+This is a Netbeans project. [ Details will be added later ]
